@@ -4,6 +4,7 @@ namespace ArrayFly;
 
 use ArrayFly\Exception\FileLocationException;
 use ArrayFly\Exception\InvalidCombinationException;
+use ArrayFly\Exception\NoMatchFoundException;
 
 class File
 {
@@ -25,11 +26,13 @@ class File
     public function __construct(string $fileLocation = null)
     {
         if (empty($fileLocation)) {
-            throw new FileLocationException('File location path is empty');
+            throw new FileLocationException('File location path cannot be empty.');
         }
 
         if (!file_exists($fileLocation)) {
-            throw new FileLocationException('File does not exist');
+            throw new FileLocationException(
+                sprintf("The file '%s' was not found.", $fileLocation)
+            );
         }
 
         $this->file = $fileLocation;
@@ -44,7 +47,7 @@ class File
      *
      * @return $this
      */
-    public function save()
+    public function save(): self
     {
         file_put_contents($this->file, $this->fileContent);
 
@@ -64,15 +67,20 @@ class File
      * @return File
      *
      * @throws InvalidCombinationException
+     * @throws NoMatchFoundException
      */
     public function setValue(string $key, string $value, bool $save = false, $strictCheck = false): self
     {
         $matches = $this->getMatches($key);
 
-        // escape bad user input
-        $value = addslashes(htmlentities($value));
+        if (empty($matches)) {
+            throw new NoMatchFoundException(
+                sprintf("No matches found for the current key: '%s'.", $key)
+            );
+        }
 
-        $defaultReplace = "'{$key}' => '{$value}'";
+        // escape bad code
+        $value = addslashes(htmlentities($value));
 
         if ($strictCheck) {
             if (
@@ -88,7 +96,7 @@ class File
 
             switch ($combination) {
                 case '\'\'\'\'':
-                    $replace = $defaultReplace;
+                    $replace = "'{$key}' => '{$value}'";
                     break;
 
                 case '""""':
@@ -104,13 +112,15 @@ class File
                     break;
 
                 default:
-                    throw new InvalidCombinationException('No combination found');
+                    throw new InvalidCombinationException('No combination found.');
             }
+        } else {
+            $replace = "'{$key}' => '{$value}'";
         }
 
         $this->fileContent = preg_replace(
             str_replace('{key}', $key, self::ARRAY_SEARCH_PATTERN),
-            $replace ?? $defaultReplace,
+            $replace,
             $this->fileContent
         );
 
@@ -131,7 +141,7 @@ class File
      */
     public function getValue(string $key): string
     {
-        return $this->getMatches($key)[4] ?? '';
+        return ($this->getMatches($key)[4] ?? '');
     }
 
     /**

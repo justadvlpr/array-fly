@@ -1,6 +1,7 @@
 {
     "name": "vitorarantes/array-fly",
     "description": "ArrayFly is a simple PHP Library that allows you to manipulate an array inside a file.",
+    "keywords": ["array", "php", "arrayfly", "file"],
     "type": "library",
     "license": "MIT",
     "authors": [
