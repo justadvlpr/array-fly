@@ -6,20 +6,18 @@ use ArrayFly\Exception\FileLocationException;
 use ArrayFly\Exception\InvalidCombinationException;
 use ArrayFly\Exception\NoMatchFoundException;
 
-class File
+class ArrayFly
 {
     private const ARRAY_SEARCH_PATTERN = "/(\"|'){key}(\"|') => (\"|')(.*)(\"|')/";
 
-    /** @var string */
-    private $file;
+    private string $file;
 
-    /** @var string */
-    private $fileContent;
+    private string $fileContent;
 
     /**
      * @param string|null $fileLocation The file location path.
      *
-     * @return File
+     * @return ArrayFly
      *
      * @throws FileLocationException
      */
@@ -64,7 +62,7 @@ class File
      * double quotes it will be converted to single quote, if you want to keep
      * the double quotes, set this option to true.
      *
-     * @return File
+     * @return ArrayFly
      *
      * @throws InvalidCombinationException
      * @throws NoMatchFoundException
@@ -118,11 +116,17 @@ class File
             $replace = "'{$key}' => '{$value}'";
         }
 
-        $this->fileContent = preg_replace(
+        $replaceContent = preg_replace(
             str_replace('{key}', $key, self::ARRAY_SEARCH_PATTERN),
             $replace,
             $this->fileContent
         );
+
+        if ($replaceContent === null) {
+            return $this;
+        }
+
+        $this->fileContent = $replaceContent;
 
         if ($save) {
             $this->save();

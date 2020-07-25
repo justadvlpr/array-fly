@@ -2,28 +2,28 @@
 
 namespace ArrayFly\Test;
 
-use ArrayFly\File;
+use ArrayFly\ArrayFly;
 use PHPUnit\Framework\TestCase;
 
 class FileTest extends TestCase
 {
-    public function testEmptyFile()
+    public function test_empty_file()
     {
         $this->expectException('\ArrayFly\Exception\FileLocationException');
 
-        new File('');
+        new ArrayFly('');
     }
 
-    public function testFileDoesNotExist()
+    public function test_file_does_not_exist()
     {
         $this->expectException('\ArrayFly\Exception\FileLocationException');
 
-        new File('myarray.php');
+        new ArrayFly('myarray.php');
     }
 
-    public function testGetValue()
+    public function test_get_value()
     {
-        $file = new File(__DIR__ . '/fixtures/array.php');
+        $file = new ArrayFly(__DIR__ . '/fixtures/array.php');
 
         foreach ([1, 2, 3, 4] as $k) {
             $value = $file->getValue('mykey' . $k);
@@ -31,18 +31,18 @@ class FileTest extends TestCase
         }
     }
 
-    public function testSetValueNoMatchesFoundForKey()
+    public function test_set_value_no_matches_found_for_key()
     {
-        $file = new File(__DIR__ . '/fixtures/array.php');
+        $file = new ArrayFly(__DIR__ . '/fixtures/array.php');
 
         $this->expectException('\ArrayFly\Exception\NoMatchFoundException');
 
         $file->setValue('thisKeyDoesNotExist', 'randomValue');
     }
 
-    public function testSetValue()
+    public function test_set_value()
     {
-        $file = new File(__DIR__ . '/fixtures/array.php');
+        $file = new ArrayFly(__DIR__ . '/fixtures/array.php');
 
         $oldValue = $file->getValue('mykey1');
 
@@ -55,18 +55,18 @@ class FileTest extends TestCase
         $file->setValue('mykey1', 'myvalue1', true);
     }
 
-    public function testSetValueBadCombinationOnStrictMode()
+    public function test_set_value_bad_combination_on_strict_mode()
     {
-        $file = new File(__DIR__ . '/fixtures/bad-array.php');
+        $file = new ArrayFly(__DIR__ . '/fixtures/bad-array.php');
 
         $this->expectException('\ArrayFly\Exception\InvalidCombinationException');
 
         $file->setValue('key1', 'changed 1', false, true);
     }
 
-    public function testSetValueAllCombinationsOnStrictMode()
+    public function test_set_value_all_combinations_on_strict_mode()
     {
-        $file = new File(__DIR__ . '/fixtures/combinations.php');
+        $file = new ArrayFly(__DIR__ . '/fixtures/combinations.php');
 
         $file
             ->setValue('combination1', 'changed1', true, true)
