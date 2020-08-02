@@ -27,5 +27,5 @@ echo $arrayFly->getValue('key1');
 $arrayFly->setValue('key1', 'value2')->save();
 
 echo $arrayFly->getValue('key1');
-(output: value1)
+(output: value2)
 ```
